@@ -5,6 +5,12 @@ import { getPaginationRowModel } from "@tanstack/table-core";
 import type { Row } from "@tanstack/table-core";
 import type { User } from "~/types";
 
+// constants for visual colors datas
+const tableHeadTextColor = "text-white";
+const tableHeadBgColor = "bg-primary";
+const tableHeadBorderColor = "border-primary-300";
+const tableBodyBorderColor = "border-primary-200";
+
 const UAvatar = resolveComponent("UAvatar");
 const UButton = resolveComponent("UButton");
 const UBadge = resolveComponent("UBadge");
@@ -13,6 +19,8 @@ const UCheckbox = resolveComponent("UCheckbox");
 
 const toast = useToast();
 const table = useTemplateRef("table");
+
+const globalFilter = ref("");
 
 const columnFilters = ref([
     {
@@ -102,16 +110,38 @@ const columns: TableColumn<User>[] = [
     {
         accessorKey: "id",
         header: "ID",
+        footer: ({ column }) => {
+            const total = column
+                .getFacetedRowModel()
+                .rows.reduce(
+                    (acc: number, row: TableRow<User>) =>
+                        acc + Number.parseFloat(row.getValue("id")),
+                    0
+                );
+
+            // const formatted = new Intl.NumberFormat("en-US", {
+            //     style: "currency",
+            //     currency: "EUR",
+            // }).format(total);
+
+            return h(
+                "div",
+                { class: "h-10 font-medium text-black" },
+                `Total: ${total}`
+            );
+        },
     },
     {
         accessorKey: "name",
         header: "Name",
         cell: ({ row }) => {
             return h("div", { class: "flex items-center gap-3" }, [
-                h(UAvatar, {
-                    ...row.original.avatar,
-                    size: "lg",
-                }),
+                row.original.avatar
+                    ? h(UAvatar, {
+                          ...row.original.avatar,
+                          size: "lg",
+                      })
+                    : "",
                 h("div", undefined, [
                     h(
                         "p",
@@ -129,15 +159,15 @@ const columns: TableColumn<User>[] = [
             const isSorted = column.getIsSorted();
 
             return h(UButton, {
-                color: "neutral",
-                variant: "ghost",
+                // color: "neutral",
+                // variant: "ghost",
                 label: "Email",
                 icon: isSorted
                     ? isSorted === "asc"
                         ? "i-lucide-arrow-up-narrow-wide"
                         : "i-lucide-arrow-down-wide-narrow"
                     : "i-lucide-arrow-up-down",
-                class: "-mx-2.5",
+                class: `-mx-2.5 ${tableHeadTextColor}`,
                 onClick: () =>
                     column.toggleSorting(column.getIsSorted() === "asc"),
             });
@@ -190,6 +220,11 @@ const columns: TableColumn<User>[] = [
                 )
             );
         },
+        meta: {
+            class: {
+                td: "w-6",
+            },
+        },
     },
 ];
 
@@ -227,7 +262,10 @@ const pagination = ref({
 <template>
     <UDashboardPanel id="customers">
         <template #header>
-            <UDashboardNavbar title="Customers">
+            <UDashboardNavbar
+                title="Customers"
+                :ui="{ root: 'px-1 sm:px-1 gap-1', right: 'gap-1' }"
+            >
                 <template #leading>
                     <UDashboardSidebarCollapse />
                 </template>
@@ -240,17 +278,37 @@ const pagination = ref({
 
         <template #body>
             <div class="flex flex-wrap items-center justify-between gap-1.5">
-                <UInput
-                    :model-value="(table?.tableApi?.getColumn('email')?.getFilterValue() as string)"
-                    class="max-w-sm"
-                    icon="i-lucide-search"
-                    placeholder="Filter emails..."
-                    @update:model-value="
-                        table?.tableApi
-                            ?.getColumn('email')
-                            ?.setFilterValue($event)
-                    "
-                />
+                <div class="flex gap-2">
+                    <UInput
+                        v-model="globalFilter"
+                        class="max-w-sm"
+                        icon="i-lucide-search"
+                        placeholder="Filter global ..."
+                        :ui="{ trailing: 'pe-1' }"
+                    >
+                        <template v-if="globalFilter?.length" #trailing>
+                            <UButton
+                                color="neutral"
+                                variant="link"
+                                size="sm"
+                                icon="i-lucide-search-x"
+                                aria-label="Clear input"
+                                @click="globalFilter = ''"
+                            />
+                        </template>
+                    </UInput>
+                    <UInput
+                        :model-value="(table?.tableApi?.getColumn('email')?.getFilterValue() as string)"
+                        class="max-w-sm"
+                        icon="i-lucide-search"
+                        placeholder="Filter emails ..."
+                        @update:model-value="
+                            table?.tableApi
+                                ?.getColumn('email')
+                                ?.setFilterValue($event)
+                        "
+                    />
+                </div>
 
                 <div class="flex flex-wrap items-center gap-1.5">
                     <CustomersDeleteModal
@@ -326,6 +384,7 @@ const pagination = ref({
 
             <UTable
                 ref="table"
+                v-model:global-filter="globalFilter"
                 v-model:column-filters="columnFilters"
                 v-model:column-visibility="columnVisibility"
                 v-model:row-selection="rowSelection"
@@ -336,16 +395,16 @@ const pagination = ref({
                 class="shrink-0"
                 :data="data"
                 :columns="columns"
-                @select="onSelect"
                 :loading="status === 'pending'"
                 :ui="{
                     base: 'table-fixed border-spacing-0',
-                    thead: '[&>tr]:bg-primary [&>tr]:after:content-none',
-                    tbody: '[&>tr]:data-[selectable=true]:hover:bg-primary/10',
-                    tr: 'data-[selected=true]:bg-primary/30',
-                    th: 'p-0 text-center text-white text-xs border border-primary-300',
-                    td: 'p-0 pl-1 text-xs border border-primary-200',
+                    thead: `[&>tr]:${tableHeadBgColor} [&>tr]:after:content-none`,
+                    tbody: `[&>tr]:data-[selectable=true]:hover:${tableHeadBgColor}/10`,
+                    tr: `data-[selected=true]:${tableHeadBgColor}/30`,
+                    th: `p-0 text-center ${tableHeadTextColor} text-xs border ${tableHeadBorderColor}`,
+                    td: `p-0 pl-1 text-xs border ${tableBodyBorderColor}`,
                 }"
+                @select="onSelect"
             />
 
             <div

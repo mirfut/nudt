@@ -15,16 +15,16 @@ const customers: User[] = [
         id: 2,
         name: "Jordan Brown",
         email: "jordan.brown@example.com",
-        avatar: {
-            src: "https://i.pravatar.cc/128?u=2",
-        },
+        // avatar: {
+        //     src: "https://i.pravatar.cc/128?u=2",
+        // },
         status: "unsubscribed",
         location: "London, UK",
     },
     {
         id: 3,
-        name: "Taylor Green",
-        email: "taylor.green@example.com",
+        name: "Taylor Smith",
+        email: "taylor.smith@example.com",
         avatar: {
             src: "https://i.pravatar.cc/128?u=3",
         },
