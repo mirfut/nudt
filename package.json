@@ -1,0 +1,29 @@
+{
+    "name": "nuxt-ui-dashboard-template",
+    "version": "0.0.1",
+    "description": "Nuxt UI dashboard template",
+    "author": "Timur Brodskiy",
+    "homepage": "https://mirfut.net",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mirfut/nudt"
+    },
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "build": "nuxt build",
+        "dev": "nuxt dev",
+        "generate": "nuxt generate",
+        "preview": "nuxt preview",
+        "postinstall": "nuxt prepare"
+    },
+    "dependencies": {
+        "@nuxt/eslint": "1.9.0",
+        "@nuxt/ui": "4.0.1",
+        "eslint": "^9.0.0",
+        "nuxt": "^4.1.2",
+        "typescript": "^5.6.3",
+        "vue": "^3.5.22",
+        "vue-router": "^4.5.1"
+    }
+}
