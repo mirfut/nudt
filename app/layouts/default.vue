@@ -24,6 +24,14 @@ const links = [
     ],
     [
         {
+            label: "Login",
+            icon: "i-lucide-log-in",
+            to: "/login",
+            onSelect: () => {
+                open.value = false;
+            },
+        },
+        {
             label: "Settings",
             to: "/settings",
             icon: "i-lucide-settings",
